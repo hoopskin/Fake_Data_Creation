@@ -1,0 +1,312 @@
+Phoenix
+Deer Park
+Bon Echo
+Gran Paradiso
+Shiretoko
+Namoroka
+Janus
+Snowball
+Chicago
+O’Hare
+Memphis
+Daytona
+Cairo
+Whistler
+Longhorn
+Vienna
+Blue
+Threshold
+Redstone
+Warty Warthog
+Hoary Hedgehog
+Breezy Badger
+Dapper Drake
+Edgy Eft
+Feisty Fawn
+Gutsy Gibbon
+Hardy Heron
+Intrepid Ibex
+Jaunty Jackalope
+Karmic Koala
+Lucid Lynx
+Maverick Meerkat
+Natty Narwhal
+Oneiric Ocelot
+Precise Pangolin
+Quantal Quatzal
+Raring Ringtail
+Saucy Salamander
+Trusty Tahr
+Utopic Unicorn
+Vivid Vervet
+Wily Werewolf
+Xenial Xerus
+Yakkety Yak
+Zesty Zapus
+Harmony
+Tempo
+Bride of Buster
+Allegro
+Sonata
+Fortissimo
+Moonlight
+Cheetah
+Puma
+Jaguar
+Panther
+Tiger
+Leopard
+Snow Leopard
+Lion
+Mountain Lion
+Mavericks
+Yosemite
+El Capitan
+Mingus
+Strayhorn
+Duke
+Ella
+Getz
+Dexter
+Brecker
+Tyner
+Coltrane
+Baker
+Carmen
+Thelonious
+Reinhardt
+Gershwin
+Sonny
+Green
+Elvin
+Oscar
+Basie
+Parker
+Smith
+Benny
+Dinah
+Powell
+Billie
+Clifford
+Coleman
+Pepper
+Vaughan
+Evans
+Tipton
+Bebo
+Betty
+Cupcake
+Donut
+Eclair
+FroYo
+Gingerbread
+Ice Cream Sandwich
+Jelly Bean
+KitKat
+Lollipop
+Marshmallow
+Nougat
+Oreo
+Pie
+Fast Eddy
+Tiger Mountain
+Big Electric Cat
+Strange Cargo
+Venus in Furs
+Liquid Sky
+Dark Matter
+Space Monkey
+Red Pill
+Stonehenge
+White Rabbit
+Superstition
+Lucky 7
+Single Malt Whiskey Cat
+Dedicated to Thomas and John Knoll
+Haiku
+Big Rig
+White Lion
+B Winston
+Yarrow
+Tettnang
+Heidelberg
+Stentz
+Bordeaux
+Zod
+Moonshine
+Werewolf
+Sulphur
+Cambridge
+Leonidas
+Constantine
+Goddard
+Laughlin
+Lovelock
+Verne
+Beefy Miracle
+Spherical Cow
+Schrödinger’s Cat
+Heisenbug
+Twenty One
+Mother’s Day
+Picasso
+Colgate
+Vanderbilt
+Biltmore
+Thunderbird
+Mustang
+Hurricane
+Manhattan
+Apollo
+Starbuck
+Hedwig
+Cartman
+Piglet
+Zoot
+Guinnes
+Seawolf
+Enigma
+Valhalla
+Psyche
+Shrike
+Severn
+Buzz
+Rex
+Bo
+Hamm
+Slink
+Potato
+Woody
+Sarge
+Etch
+Lenny
+Squeeze
+Wheezy
+Jessie
+Stretch
+Sun
+Mercury
+Venus
+Earth
+Mars
+Jupiter
+Saturn
+Uranus
+Neptune
+Zeus
+Hera
+Poseidon
+Demeter
+Ares
+Athena
+Apollo
+Artemis
+Hephaestus
+Aphrodite
+Hermes
+Dionysus
+Hades
+Hypnos
+Nike
+Janus
+Nemesis
+Iris
+Hecate
+Tyche
+Achilles
+Agni
+AMC
+AhPuch
+Amaterasu
+Anhur
+Anubis
+AoKuang
+Arachne
+Artio
+Awilix
+BabaYaga
+Bacchus
+Bakasura
+BaronSamedi
+Bastet
+Bellona
+Cabrakan
+Camazotz
+Cerberus
+Cernunnos
+Chaac
+ChangE
+Chernobog
+Chiron
+Chronos
+CuChulainn
+Cupid
+DaJi
+Discordia
+ErLangShen
+Fafnir
+Fenrir
+Freya
+Ganesha
+Geb
+GuanYu
+Hachiman
+HeBo
+Heimdallr
+Hel
+Hercules
+Horus
+HouYi
+HunBatz
+Isis
+Izanami
+JingWei
+Jormungandr
+Kali
+Khepri
+KingArthur
+Kukulkan
+Kumbhakarna
+Kuzenbo
+Loki
+Medusa
+Merlin
+Mulan
+NeZha
+Neith
+Nox
+NuWa
+Odin
+Olorun
+Osiris
+Pele
+Persephone
+Ra
+Raijin
+Ram
+Ratatoskr
+Ravana
+Scylla
+Serqet
+Set
+Skadi
+Sobek
+Sol
+SunWukong
+Susano
+Sylvanus
+Terra
+Thanatos
+TheMorrigan
+Thor
+Thoth
+Tsukuyomi
+Tyr
+Ullr
+Vamana
+Vulcan
+Xbalanque
+XingTian
+Yemoja
+Ymir
+ZhongKui
