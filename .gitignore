@@ -1,3 +1,11 @@
+#We're going to ignore the created files. At the very least for now
+_apps.csv
+_engagements.csv
+_developers.csv
+_apps_modified.csv
+_engagements_modified.csv
+_developers_modified.csv
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
