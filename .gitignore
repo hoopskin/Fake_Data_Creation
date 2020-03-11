@@ -110,3 +110,6 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+_apps.csv
+_developers.csv
+_engagements.csv
