@@ -1,5 +1,12 @@
 import csv, random, datetime
-from faker import Faker
+try:
+    from faker import Faker
+except(ModuleNotFoundError):
+    print("!!ERROR!!")
+    print("The 'faker' module has not been found.")
+    print("Run the following function then re-run this.")
+    print("pip install faker")
+    exit()
 
 #Currently not used. buildRandomDate could be improved to utilize these.
 companyStartDate = datetime.datetime.strptime("2015-01-01", "%Y-%m-%d")
@@ -7,6 +14,9 @@ companyEndDate = datetime.datetime.strptime("2019-12-31", "%Y-%m-%d")
 hiringStartDate = companyStartDate
 hiringEndDate = companyEndDate
 
+appsBeenModified = False
+developersBeenModified = False
+engagementsBeenModified = False
 
 fake = Faker()
 
@@ -167,6 +177,7 @@ def buildApps(appsToBuild=300):
     writer.writerows(appData)
 
 def buildEngagements(appsToBuild):
+    #TODO: We built an engagementRoleList that could go here. Add? Otherwise delete the CSV.
     engagementHeader = ["Engagement ID", "Dev_ID", "App_ID"]
 
     devData = list(csv.reader(open("_developers.csv", "rt")))
@@ -191,17 +202,106 @@ def buildEngagements(appsToBuild):
     writer.writerow(engagementHeader)
     writer.writerows(engagementData)
 
-def addDeveloperBonuses(devsBonusToBuildCount):
-    #TODO: This will basically randomly pick X developers and bonus anything they touch
-    pass
+def addDeveloperBonuses(devsBonusToBuildCount, bonusAmt=30000):
+    global appsBeenModified
+    #This will basically randomly pick X developers and bonus anything they touch
+    print("Bonus Creation: Starting with %i developers" % (devsBonusToBuildCount))
+    developers = len(list(csv.reader(open("_developers.csv", "rt"))))-1
+
+    devsToMod = []
+    while len(devsToMod) < devsBonusToBuildCount:
+        devsToMod.append(str(random.randint(1,developers)))
+        devsToMod = list(set(devsToMod))
+
+    #NOTE: It's currently possible that an App gets a double-bonus. Sometimes lightning strikes twice with a great team?
+    appsToBonus = []
+    for Dev_ID in devsToMod:
+        appsToBonus.extend([row[0] for row in csv.reader(open("_engagements.csv", "rt")) if row[1] == Dev_ID])
+
+    print("Bonus Creation: Apps that will get a bonus: %i" % (len(appsToBonus)))
+
+    appData = list(csv.reader(open("_apps.csv", "rt")))
+    appHeader = appData[0]
+    for App_ID in appsToBonus:
+        #App_ID *should* tie to the row number (0 = header. App_ID of 1 = appData[1])
+        curAmt = int(appData[int(App_ID)][appHeader.index("Expected Revenue Amount")])
+        
+        #TODO: This could be improved with a randomizer.
+        newAmt = curAmt+bonusAmt
+
+        #print("\t%s: [%i] -> [%i]" % (App_ID, curAmt, newAmt))
+        
+        appData[int(App_ID)][appHeader.index("Expected Revenue Amount")] = str(newAmt)
+
+    csv.writer(open("_apps_modified.csv", "wt"), lineterminator='\n').writerows(appData)
+    appsBeenModified = True
 
 def developerEngagementBeforeHire(devEngagementModCount):
-    #TODO: We'll take X developers and mess with an engagement to be before their hire date
-    pass
+    global engagementsBeenModified, appsBeenModified
+    #We'll take X developers and add them to an engagement before their hire date
+    print("Engagement Modification: Starting with %i developers" % (devEngagementModCount))
+    devCount = len(list(csv.reader(open("_developers.csv", "rt"))))-1
+
+    devsToMod = []
+    while len(devsToMod) < devEngagementModCount:
+        devsToMod.append(str(random.randint(1,devCount)))
+        devsToMod = list(set(devsToMod))
+
+    engagementData = list(csv.reader(open("_engagements.csv", "rt")))
+    devsData = list(csv.reader(open("_developers.csv", "rt")))
+    if appsBeenModified:
+        appsData = list(csv.reader(open("_apps_modified.csv", "rt")))
+    else:
+        appsData = list(csv.reader(open("_apps.csv", "rt")))
+
+    devsHeader = devsData[0]
+    appsHeader = appsData[0]
+
+    engagementsAdded = 0
+    for Dev_ID in devsToMod:
+        hireDate = devsData[int(Dev_ID)][devsHeader.index("Employment Start Date")]
+        appsBeforeHire = [appRow[0] for appRow in appsData if appRow[appsHeader.index("Development Start Date")] < hireDate]
+        if len(appsBeforeHire) > 0:
+            appToJoin = random.choice(appsBeforeHire)
+            #Len of the data should work to auto-increment an index
+            oRow = [len(engagementData), Dev_ID, appToJoin]
+            engagementData.append(oRow)
+            engagementsAdded+=1
+
+    print("Engagement Modification: %i Improper engagements added" % (engagementsAdded))
+
+    csv.writer(open("_engagements_modified.csv", "wt"), lineterminator='\n').writerows(engagementData)
+    engagementsBeenModified = True
 
 def centuryDateMessup(appCenturyMessupCount):
-    #TODO: We'll take X apps and move their start date to 19xx
-    pass
+    global appsBeenModified
+    #We'll take X apps and move their start date to 19xx
+    print("Century Dates: Starting with %i apps" % (appCenturyMessupCount))
+    appCount = len(list(csv.reader(open("_apps.csv", "rt"))))-1
+
+    appsToMod = []
+    while len(appsToMod) < appCenturyMessupCount:
+        appsToMod.append(str(random.randint(1,appCount)))
+        appsToMod = list(set(appsToMod))
+
+    fileName = "_apps_modified.csv" if appsBeenModified else "_apps.csv"
+
+    appsData = list(csv.reader(open(fileName, 'rt')))
+    appsHeader = appsData[0]
+
+    appsModified = 0
+    for App_ID in appsToMod:
+        #Date in the format of YYYY-MM-DD
+        curDate = datetime.datetime.strptime(appsData[int(App_ID)][appsHeader.index("Development Start Date")], "%Y-%m-%d")
+        newDate = curDate.replace(year=curDate.year-100)
+
+        appsData[int(App_ID)][appsHeader.index("Development Start Date")] = datetime.datetime.strftime(newDate, "%Y-%m-%d")
+        appsModified+=1
+
+    print("Century Dates: %i Apps Modified" % (appsModified))
+
+    csv.writer(open("_apps_modified.csv", "wt"), lineterminator='\n').writerows(appsData)
+    appsBeenModified = True
 
 def extraZeroesIncome(extraZeroesAppCount):
     #TODO: We'll take X apps with a realized revenue and mess with their value to add 2 or 3 zeroes
