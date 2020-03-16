@@ -8,11 +8,9 @@ except(ModuleNotFoundError):
     print("pip install faker")
     exit()
 
-#Currently not used. buildRandomDate could be improved to utilize these.
-companyStartDate = datetime.datetime.strptime("2015-01-01", "%Y-%m-%d")
-companyEndDate = datetime.datetime.strptime("2019-12-31", "%Y-%m-%d")
-hiringStartDate = companyStartDate
-hiringEndDate = companyEndDate
+devsToBuild=60
+devsPerAppMultiplier=5
+appsToBuildOverride=5000
 
 appsBeenModified = False
 developersBeenModified = False
@@ -27,6 +25,7 @@ fake = Faker()
 appCatList, devSteps, engagementRoleList, projNameList, regionList, revenueSourceList = [], [], [], [], [], []
 
 def buildManualLists(appsToBuild, folder="manualLists/"):
+    print("Building Manual Lists...")
     global appCatList, devSteps, engagementRoleList, projNameList, regionList, revenueSourceList
     #appCatList
     appCatList = [v.strip() for v in open(folder+"appCategoryList.txt", "rt")]
@@ -103,6 +102,7 @@ def buildRandomDate(initialSeedDev=False, years=[2015, 2016, 2017, 2018, 2019], 
     return datetime.datetime.strftime(dt, "%Y-%m-%d")
 
 def buildDevelopers(numToMake=60):
+    print("Building Developers...")
     #fake.csv(header=None, data_columns=('{{name}}', '{{address}}'), num_rows=10, include_row_ids=False)
     #fake.profile(fields=None, sex=None)
     devHeader = ["Dev_ID", "First Name", "Last Name", "Home State", \
@@ -132,10 +132,11 @@ def buildDevelopers(numToMake=60):
     writer.writerows(devData)
 
 def buildApps(appsToBuild=300):
+    print("Building Apps...")
     appHeader = ["App_ID", "In Development Name", "Marketed Name", \
                 "Region", "Category", "Expected Revenue Source", \
                 "Expected Revenue Amount", "Current Development Step", \
-                "Development Start Date", "Current Cost"]
+                "Development Start Date", "Current Cost", "HQ State"]
 
     appData = []
 
@@ -151,8 +152,8 @@ def buildApps(appsToBuild=300):
         revSrc = random.choice(revenueSourceList)
         expRevAmt = guessExpectedRevenue(region, appCat, revSrc)
 
-        #TODO: Should we weight these so we can see a bottleneck?
-        curDevStep = random.choice(devSteps)
+        #Weighted to show a bottleneck at Testing
+        curDevStep = random.choices(devSteps, weights=[5,5,5,5,44,9,9,9,9])[0]
 
         marketName = ""
         if devSteps.index(curDevStep) >= devSteps.index("Marketing"):
@@ -168,8 +169,13 @@ def buildApps(appsToBuild=300):
         #Having 0 cost is ok. Maybe some contracts cause no add'l cost
         cost = random.randint(0,5)*devSteps.index(curDevStep)*random.randint(1,365*4)
 
+        hq_state = fake.state()
+        #Skipping these two since it makes the visual messier
+        while hq_state in ["Alaska", "Hawaii"]:
+            hq_state = fake.state()
+
         oRow = [appId, inDevName, marketName, region, appCat, revSrc, expRevAmt, \
-                curDevStep, startDate, cost]
+                curDevStep, startDate, cost, hq_state]
         appData.append(oRow)
 
     writer = csv.writer(open("_apps.csv", "wt"), lineterminator='\n')
@@ -177,8 +183,8 @@ def buildApps(appsToBuild=300):
     writer.writerows(appData)
 
 def buildEngagements(appsToBuild):
-    #TODO: We built an engagementRoleList that could go here. Add? Otherwise delete the CSV.
-    engagementHeader = ["Engagement ID", "Dev_ID", "App_ID"]
+    print("Building Engagements...")
+    engagementHeader = ["Engagement ID", "Dev_ID", "App_ID", "Engagement Role"]
 
     devData = list(csv.reader(open("_developers.csv", "rt")))
     devHeader = devData[0]
@@ -188,7 +194,10 @@ def buildEngagements(appsToBuild):
 
     engagementData = []
     for appId in range(1, appsToBuild+1):
-        appRow = [row for row in appData if row[appHeader.index("App_ID")] == str(appId)][0]
+        #Trick here is that "appRow" is available as a variable after the for loop
+        for appRow in appData:
+            if appRow[appHeader.index("App_ID")] == str(appId):
+                break
         appStartDate = appRow[appHeader.index("Development Start Date")]
         potentialDevs = [row[devHeader.index("Dev_ID")] for row in devData if row[devHeader.index("Employment Start Date")] <= appStartDate]
 
@@ -196,7 +205,7 @@ def buildEngagements(appsToBuild):
         devsToEngage = random.choices(potentialDevs, k=random.randint(1,min(5,len(potentialDevs))))
 
         for devId in devsToEngage:
-            engagementData.append([len(engagementData)+1,appId,devId])
+            engagementData.append([len(engagementData)+1,appId,devId,random.choice(engagementRoleList)])
 
     writer = csv.writer(open("_engagements.csv", "wt"), lineterminator='\n')
     writer.writerow(engagementHeader)
@@ -225,12 +234,12 @@ def addDeveloperBonuses(devsBonusToBuildCount, bonusAmt=30000):
     for App_ID in appsToBonus:
         #App_ID *should* tie to the row number (0 = header. App_ID of 1 = appData[1])
         curAmt = int(appData[int(App_ID)][appHeader.index("Expected Revenue Amount")])
-        
+
         #TODO: This could be improved with a randomizer.
         newAmt = curAmt+bonusAmt
 
         #print("\t%s: [%i] -> [%i]" % (App_ID, curAmt, newAmt))
-        
+
         appData[int(App_ID)][appHeader.index("Expected Revenue Amount")] = str(newAmt)
 
     csv.writer(open("_apps_modified.csv", "wt"), lineterminator='\n').writerows(appData)
@@ -304,16 +313,71 @@ def centuryDateMessup(appCenturyMessupCount):
     appsBeenModified = True
 
 def extraZeroesIncome(extraZeroesAppCount):
-    #TODO: We'll take X apps with a realized revenue and mess with their value to add 2 or 3 zeroes
-    pass
+    global appsBeenModified
+    #We'll take X apps and add a few zeroes to the end of their income.
+    print("Incomes: Starting with %i apps" % (extraZeroesAppCount))
+    appCount = len(list(csv.reader(open("_apps.csv", "rt"))))-1
 
+    appsToMod = []
+    while len(appsToMod) < extraZeroesAppCount:
+        appsToMod.append(str(random.randint(1,appCount)))
+        appsToMod = list(set(appsToMod))
 
+    fileName = "_apps_modified.csv" if appsBeenModified else "_apps.csv"
 
-def dirtyTheData(devEngagementModCount, appCenturyMessupCount, extraZeroesAppCount):
-    #TODO: Here is where we're going to mess with / break some of the data
+    appsData = list(csv.reader(open(fileName, 'rt')))
+    appsHeader = appsData[0]
+
+    appsModified = 0
+    for App_ID in appsToMod:
+        #Multiply by 100 or 1000
+        curIncome = int(appsData[int(App_ID)][appsHeader.index("Expected Revenue Amount")])
+        exp = random.randint(2,3)
+        newIncome = int(curIncome*pow(10,exp))
+
+        appsData[int(App_ID)][appsHeader.index("Expected Revenue Amount")] = newIncome
+        appsModified+=1
+
+    print("Incomes: %i Apps Modified" % (appsModified))
+
+    csv.writer(open("_apps_modified.csv", "wt"), lineterminator='\n').writerows(appsData)
+    appsBeenModified = True
+
+def addRandomNulls(randomNullsCount):
+	global appsBeenModified
+    #We'll change X values to nulls in the aggregate app data
+	print("Nulls: Starting with %i apps" % (randomNullsCount))
+	appCount = len(list(csv.reader(open("_apps.csv", "rt"))))-1
+
+	appsToMod = []
+	while len(appsToMod) < randomNullsCount:
+		appsToMod.append(str(random.randint(1,appCount)))
+		appsToMod = list(set(appsToMod))
+
+	fileName = "_apps_modified.csv" if appsBeenModified else "_apps.csv"
+
+	appsData = list(csv.reader(open(fileName, 'rt')))
+	appsHeader = appsData[0]
+
+	appsModified = 0
+	for App_ID in appsToMod:
+		#Column of new null
+		null_column = random.randint(1, len(appsHeader) - 1)
+
+		appsData[int(App_ID)][null_column] = None
+		appsModified+=1
+
+	print("Nulls: %i Nulls Added" % (appsModified))
+
+	csv.writer(open("_apps_modified.csv", "wt"), lineterminator='\n').writerows(appsData)
+	appsBeenModified = True
+
+def dirtyTheData(devEngagementModCount, appCenturyMessupCount, extraZeroesAppCount, randomNullsCount):
+    #Here is where we're going to mess with / break some of the data
     developerEngagementBeforeHire(devEngagementModCount)
     centuryDateMessup(appCenturyMessupCount)
     extraZeroesIncome(extraZeroesAppCount)
+    addRandomNulls(randomNullsCount)
 
 def main(devsToBuild=60, devsPerAppMultiplier=5, appsToBuildOverride=None):
     if appsToBuildOverride == None:
@@ -325,6 +389,6 @@ def main(devsToBuild=60, devsPerAppMultiplier=5, appsToBuildOverride=None):
     buildApps(appsToBuild)
     buildEngagements(appsToBuild)
     addDeveloperBonuses(devsToBuild//10)
-    dirtyTheData(devsToBuild//20, appsToBuild//20//5, appsToBuild//20//5)
+    dirtyTheData(devsToBuild//20, appsToBuild//20//5, appsToBuild//20//5, appsToBuild//20)
 
-main()
+main(devsToBuild, devsPerAppMultiplier, appsToBuildOverride)
